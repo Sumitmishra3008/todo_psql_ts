@@ -1,5 +1,7 @@
 import express from "express";
 const app = express();
+import cors from "cors";
+app.use(cors());
 
 import { PrismaClient } from "@prisma/client";
 import { parse } from "path";
@@ -26,6 +28,23 @@ app.post("/addtodo", async (req, res) => {
       res.status(500).json({ error: "Failed to create todo" });
     });
   res.status(201).json({ todo });
+});
+
+app.put("/updatetodo", async (req, res) => {
+  const id = req.query.id;
+  const id2: number = parseInt(id as string);
+  const todo = await prisma.todo
+    .update({
+      where: { id: id2 },
+      data: {
+        completed: !req.body.completed,
+      },
+    })
+    .catch((e: any) => {
+      console.error("Error updating todo:", e);
+      res.status(500).json({ error: "Failed to update todo" });
+    });
+  res.status(200).json({ message: "Todo updated successfully", todo });
 });
 
 app.put("/deletetodo/", async (req, res) => {
